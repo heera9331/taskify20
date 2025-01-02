@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model category {
+  id             Int        @id @default(autoincrement())
+  title          String
+  description    String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime
+  parentId       Int?
+  category       category?  @relation("categoryTocategory", fields: [parentId], references: [id], map: "Category_parentId_fkey")
+  other_category category[] @relation("categoryTocategory")
+
+  @@index([parentId], map: "Category_parentId_fkey")
+}
+
+model comment {
+  id       Int    @id @default(autoincrement())
+  content  String
+  postId   Int
+  userId   Int
+  parentId Int    @default(0)
+  noteId   Int?
+  note     note?  @relation(fields: [noteId], references: [id], map: "Comment_noteId_fkey")
+  post     post   @relation(fields: [postId], references: [id], map: "Comment_postId_fkey")
+  user     user   @relation(fields: [userId], references: [id], map: "Comment_userId_fkey")
+  task     task[] @relation("commenttotask")
+
+  @@index([noteId], map: "Comment_noteId_fkey")
+  @@index([postId], map: "Comment_postId_fkey")
+  @@index([userId], map: "Comment_userId_fkey")
+}
+
+model note {
+  id         Int       @id @default(autoincrement())
+  title      String
+  content    String    @db.Text
+  parentId   Int?
+  userId     Int
+  isArchived Boolean   @default(false)
+  isDeleted  Boolean   @default(false)
+  isPublic   Boolean   @default(false)
+  category   String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  comment    comment[]
+  note       note?     @relation("noteTonote", fields: [parentId], references: [id], map: "Note_parentId_fkey")
+  other_note note[]    @relation("noteTonote")
+  user       user      @relation(fields: [userId], references: [id], map: "Note_userId_fkey")
+
+  @@index([parentId], map: "Note_parentId_fkey")
+  @@index([userId], map: "Note_userId_fkey")
+}
+
+model post {
+  id        Int           @id @default(autoincrement())
+  title     String
+  content   String
+  postType  post_postType
+  createdAt DateTime      @default(now())
+  updatedAt DateTime
+  userId    Int
+  name      String        @unique(map: "Post_name_key")
+  comment   comment[]
+  user      user          @relation(fields: [userId], references: [id], map: "Post_userId_fkey")
+  tag       tag[]         @relation("posttags")
+
+  @@index([userId], map: "Post_userId_fkey")
+}
+
+model tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique(map: "Tag_name_key")
+  task task[] @relation("notetags")
+  post post[] @relation("posttags")
+}
+
+model task {
+  id         Int       @id @default(autoincrement())
+  title      String
+  content    String    @db.Text
+  parentId   Int?
+  userId     Int
+  priority   Int       @default(0)
+  status     String
+  dueDate    DateTime
+  isArchived Boolean   @default(false)
+  isDeleted  Boolean   @default(false)
+  isPublic   Boolean   @default(false)
+  category   String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  task       task?     @relation("taskTotask", fields: [parentId], references: [id], map: "Task_parentId_fkey")
+  other_task task[]    @relation("taskTotask")
+  user       user      @relation(fields: [userId], references: [id], map: "Task_userId_fkey")
+  comment    comment[] @relation("commenttotask")
+  tag        tag[]     @relation("notetags")
+
+  @@index([parentId], map: "Task_parentId_fkey")
+  @@index([userId], map: "Task_userId_fkey")
+}
+
+model user {
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String    @unique(map: "User_email_key")
+  username String    @unique(map: "User_username_key")
+  password String
+  comment  comment[]
+  note     note[]
+  post     post[]
+  task     task[]
+}
+
+enum post_postType {
+  POST
+  NOTE
+  TASK
+  ATTACHMENT
+}
