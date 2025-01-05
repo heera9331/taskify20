@@ -7,15 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model user {
+  id         Int        @id @default(autoincrement())
+  name       String
+  email      String     @unique(map: "User_email_key")
+  username   String     @unique(map: "User_username_key")
+  password   String
+  comment    comment[]
+  note       note[]
+  post       post[]
+  task       task[]
+  categories category[]
+}
+
 model category {
   id             Int        @id @default(autoincrement())
   title          String
   description    String
   createdAt      DateTime   @default(now())
-  updatedAt      DateTime
+  updatedAt      DateTime   @default(now())
   parentId       Int?
+  userId        Int
   category       category?  @relation("categoryTocategory", fields: [parentId], references: [id], map: "Category_parentId_fkey")
   other_category category[] @relation("categoryTocategory")
+  user           user       @relation(fields: [userId], references: [id])
 
   @@index([parentId], map: "Category_parentId_fkey")
 }
@@ -48,11 +63,12 @@ model note {
   isPublic   Boolean   @default(false)
   category   String?
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime
+  updatedAt  DateTime  @default(now())
   comment    comment[]
   note       note?     @relation("noteTonote", fields: [parentId], references: [id], map: "Note_parentId_fkey")
   other_note note[]    @relation("noteTonote")
   user       user      @relation(fields: [userId], references: [id], map: "Note_userId_fkey")
+  tag tag[] @relation("notetags")
 
   @@index([parentId], map: "Note_parentId_fkey")
   @@index([userId], map: "Note_userId_fkey")
@@ -64,7 +80,7 @@ model post {
   content   String
   postType  post_postType
   createdAt DateTime      @default(now())
-  updatedAt DateTime
+  updatedAt DateTime      @default(now())
   userId    Int
   name      String        @unique(map: "Post_name_key")
   comment   comment[]
@@ -79,6 +95,7 @@ model tag {
   name String @unique(map: "Tag_name_key")
   task task[] @relation("notetags")
   post post[] @relation("posttags")
+  note note[] @relation("notetags")
 }
 
 model task {
@@ -95,7 +112,7 @@ model task {
   isPublic   Boolean   @default(false)
   category   String?
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime
+  updatedAt  DateTime  @default(now())
   task       task?     @relation("taskTotask", fields: [parentId], references: [id], map: "Task_parentId_fkey")
   other_task task[]    @relation("taskTotask")
   user       user      @relation(fields: [userId], references: [id], map: "Task_userId_fkey")
@@ -104,18 +121,6 @@ model task {
 
   @@index([parentId], map: "Task_parentId_fkey")
   @@index([userId], map: "Task_userId_fkey")
-}
-
-model user {
-  id       Int       @id @default(autoincrement())
-  name     String
-  email    String    @unique(map: "User_email_key")
-  username String    @unique(map: "User_username_key")
-  password String
-  comment  comment[]
-  note     note[]
-  post     post[]
-  task     task[]
 }
 
 enum post_postType {

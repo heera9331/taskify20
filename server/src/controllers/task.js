@@ -2,7 +2,8 @@ import prisma from "../lib/prisma.js";
 
 export const getTasks = async (req, res) => {
   try {
-    const tasks = await prisma.task.findMany({});
+    const { userId } = req.user;
+    const tasks = await prisma.task.findMany({ userId });
     return res.json({ tasks });
   } catch (error) {
     console.log(error);
