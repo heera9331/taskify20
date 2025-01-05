@@ -9,6 +9,8 @@ import authRouter from "./routes/auth.js";
 import uploadRouter from "./routes/upload.js";
 import { fileURLToPath } from "url";
 
+const PORT = 5000;
+
 dovenv.config();
 
 const app = express();
@@ -35,6 +37,6 @@ app.get("/", async (req, res) => {
   res.send("Welcome to the Node.js Backend!");
 });
 
-app.listen(5000, () => {
-  console.log("Backend server is running on http://localhost:5000");
+app.listen(PORT, () => {
+  console.log(`Backend server is running on http://localhost:${5000}`);
 });

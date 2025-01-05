@@ -63,7 +63,9 @@ export const updateNote = async (req, res) => {
 
 export const createNote = async (req, res) => {
   try {
-    const { title, content, parentId, userId, isPublic, category } = req.body;
+    const { title, content, parentId, isPublic, category } = req.body;
+    const { userId } = req.user;
+
     console.log(title, content);
 
     // Validate required fields
@@ -78,7 +80,7 @@ export const createNote = async (req, res) => {
       data: {
         title,
         content: JSON.stringify(content), // Assuming content is structured data
-        userId: Number(userId),
+        userId,
         isPublic: Boolean(isPublic),
         category: category?.toString(), // Ensure it's a string if provided
         parentId,
@@ -88,8 +90,7 @@ export const createNote = async (req, res) => {
     // Return the created note
     res.status(201).json({ note: newNote });
   } catch (error) {
-    console.error("Error creating note:", error);
-    res.status(500).json({ error: "Failed to create note." });
+    res.status(500).json({ error: error.message });
   }
 };
 

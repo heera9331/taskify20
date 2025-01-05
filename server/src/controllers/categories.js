@@ -86,8 +86,7 @@ const createCategory = async (req, res) => {
 
     return res.status(201).json({ category: newCategory });
   } catch (error) {
-    console.error("Error creating category:", error.message);
-    return res.status(500).json({ error: "Failed to create category." });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -109,7 +108,7 @@ const deleteCategory = async (req, res) => {
 
     return res.json({ category: deletedCategory });
   } catch (error) {
-    console.error("Error deleting category:", error.message);
+    console.log("Error deleting category:", error.message);
 
     if (error.code === "P2025") {
       return res
@@ -124,9 +123,10 @@ const deleteCategory = async (req, res) => {
 // GET: Fetch all categories with their children
 const getAllCategories = async (req, res) => {
   try {
+    const { userId } = req.user;
+
     const categories = await prisma.category.findMany({
       where: { userId },
-      include: { children: true }, // Include subcategories recursively
     });
 
     return res.json({ categories });
@@ -151,7 +151,7 @@ const createCategoryWithParent = async (req, res) => {
         title,
         description: description || "",
         parentId,
-        userId
+        userId,
       },
     });
 

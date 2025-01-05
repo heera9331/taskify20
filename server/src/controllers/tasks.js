@@ -38,7 +38,7 @@ export const updateTask = async (req, res) => {
   const { title, content, postType } = req.body;
 
   try {
-    const updatedTask = await prisma.post.update({
+    const updatedTask = await prisma.task.update({
       where: { id: Number(id), userId },
       data: {
         title,
