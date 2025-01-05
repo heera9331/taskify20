@@ -163,10 +163,10 @@ const NoteEditor = ({ initialNote }: NoteProps) => {
             type="text"
             value={note.title}
             onChange={handleTitleChange}
-            className="w-[80%] py-2 bg-gray-50 text-3xl font-bold active:focus:bg-white focus:outline-none"
+            className="w-[72%] py-2 bg-gray-50 text-3xl font-bold active:focus:bg-white focus:outline-none"
             placeholder="Set note title"
           />
-          <div className="w-[80%]">
+          <div className="w-[72%]">
             <div
               id={EDITOR_HOLDER_ID}
               className="prose prose-stone dark:prose-invert max-w-none"

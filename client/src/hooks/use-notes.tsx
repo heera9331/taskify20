@@ -5,10 +5,11 @@ import { Note } from "@/types/index";
 export function useNotes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const storedNotes = localStorage.getItem("notes");
-    if (storedNotes) {
+    if (storedNotes && storedNotes !== "undefined") {
       setNotes(JSON.parse(storedNotes));
     } else {
       localStorage.removeItem("notes");
@@ -20,12 +21,11 @@ export function useNotes() {
     try {
       setLoading(true);
       const response = await axios.get("/api/notes");
-      console.log(response);
       const notes = response.data.notes;
       setNotes(notes);
       localStorage.setItem("notes", JSON.stringify(notes));
     } catch (error) {
-      console.log(error);
+      setError("error while fetching notes");
     } finally {
       setLoading(false);
     }
@@ -48,5 +48,7 @@ export function useNotes() {
     return response;
   };
 
-  return { notes, setNotes, getNote, updateNote, deleteNote };
+  
+
+  return { notes, setNotes, getNote, updateNote, deleteNote, loading };
 }

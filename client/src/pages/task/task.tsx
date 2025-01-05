@@ -16,34 +16,37 @@ interface Task {
   userId: number;
 }
 
-interface TaskPageProps {
-  initialTask?: Task; // Optional for editing
-}
-
-const TaskPage: React.FC<TaskPageProps> = ({ initialTask }) => {
+const TaskPage: React.FC = () => {
   const { id } = useParams();
   const { user } = useUser();
   const [query] = useSearchParams();
   const { addTask, updateTask, getTask } = useTasks();
   const [loading, setLoading] = useState(false);
 
-  const [task, setTask] = useState<Task>(
-    initialTask || {
-      id: 0,
-      title: "",
-      content: "",
-      priority: 0,
-      dueDate: new Date().toISOString(),
-      status: "TODO",
-      userId: user?.id ?? 0,
+  const [task, setTask] = useState<Task>({
+    id: 0,
+    title: "",
+    content: "",
+    priority: 1,
+    dueDate: new Date().toISOString(),
+    status: "TODO",
+    userId: user?.id ?? 0,
+  });
+
+  const isEditing = query["action"] === "edit";
+
+  // Track if initial task has been loaded
+  const [isTaskLoaded, setIsTaskLoaded] = useState(false);
+
+  useEffect(() => {
+    if (id && !isTaskLoaded) {
+      const taskData = getTask(id);
+      if (taskData) {
+        setTask(taskData);
+        setIsTaskLoaded(true); // Mark as loaded
+      }
     }
-  );
-
-  const [date, setDate] = useState<Date | undefined>(
-    initialTask ? new Date(initialTask.dueDate) : new Date()
-  );
-
-  const isEditing = !!initialTask;
+  }, [id, getTask, isTaskLoaded]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -59,7 +62,6 @@ const TaskPage: React.FC<TaskPageProps> = ({ initialTask }) => {
     e.preventDefault();
     setLoading(true);
 
-    // Validate task fields before submitting
     if (!task.title || !task.content) {
       toast.error("Title and content are required");
       setLoading(false);
@@ -68,36 +70,25 @@ const TaskPage: React.FC<TaskPageProps> = ({ initialTask }) => {
 
     try {
       if (isEditing && task.id) {
-        await updateTask(task.id, task); // Update task logic
+        await updateTask(task.id, task);
         toast.success("Task updated successfully");
       } else {
-        await addTask({ task }); // Add new task logic
+        await addTask(task);
         toast.success("Task created successfully");
       }
-    } catch (error) {
-      console.error("Failed to save task:", error);
-      toast.error("Failed to save task");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to save task";
+      console.error(errorMessage, error);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (id) {
-      const fetchTask = async () => {
-        const taskData = await getTask(id);
-        if (taskData) {
-          setTask(taskData);
-          setDate(new Date(taskData.dueDate)); // Update the date as well
-        }
-      };
-      fetchTask();
-    }
-  }, [id, getTask]);
-
   return (
     <div className="w-full pl-4 mb-4">
-      <header className="pt-4 ">
+      <header className="pt-4">
         <h2 className="text-[32px]">
           {isEditing ? "Edit Task" : "Create Task"}
         </h2>
@@ -172,12 +163,10 @@ const TaskPage: React.FC<TaskPageProps> = ({ initialTask }) => {
               id="dueDate"
               name="dueDate"
               type="date"
-              value={date?.toISOString().split("T")[0]}
-              onChange={(e) => {
-                const newDate = new Date(e.target.value);
-                setDate(newDate);
-                setTask({ ...task, dueDate: newDate.toISOString() });
-              }}
+              value={task.dueDate ? task.dueDate.split("T")[0] : ""}
+              onChange={(e) =>
+                setTask({ ...task, dueDate: `${e.target.value}T00:00:00.000Z` })
+              }
               className="w-full p-2 border rounded"
             />
           </div>
@@ -203,7 +192,7 @@ const TaskPage: React.FC<TaskPageProps> = ({ initialTask }) => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="px-4 py-2 text-white bg-gray-800 rounded-mdhover:bg-gray-900"
+            className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-900"
             disabled={loading}
           >
             {loading ? "Saving..." : isEditing ? "Update Task" : "Create Task"}

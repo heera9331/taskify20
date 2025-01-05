@@ -4,7 +4,6 @@ import { toast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-
 import { useNavigate } from "react-router-dom";
 import React from "react";
 
@@ -34,7 +33,7 @@ const SignInForm = () => {
     try {
       console.log(user);
 
-      const response = await fetch("http://localhost:5000/auth/login", {
+      const response = await fetch("http://67.217.245.73/myapp/auth/login", {
         method: "post",
         headers: {
           "content-type": "application/json",

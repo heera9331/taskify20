@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 
 type SearchParams = Record<string, string>;
 
-const useSearchParams = (): [SearchParams, (newParams: Partial<SearchParams>) => void] => {
+const useSearchParams = (): [
+  SearchParams,
+  (newParams: Partial<SearchParams>) => void,
+  (key: string) => string | null,
+  (key: string) => string[]
+] => {
   const [searchParams, setSearchParams] = useState<SearchParams>({});
 
   useEffect(() => {
@@ -28,6 +33,18 @@ const useSearchParams = (): [SearchParams, (newParams: Partial<SearchParams>) =>
     };
   }, []);
 
+  const get = (key: string): string | null => {
+    if(searchParams[`${key}`]) {
+      return searchParams[`${key}`];
+    }
+    return null;
+  };
+
+  const getAll = (key: string): string[] => {
+    const params = new URLSearchParams(window.location.search);
+    return params.getAll(key); // Return all values for the given key
+  };
+
   const updateSearchParams = (newParams: Partial<SearchParams>) => {
     const params = new URLSearchParams(window.location.search);
     Object.entries(newParams).forEach(([key, value]) => {
@@ -42,7 +59,7 @@ const useSearchParams = (): [SearchParams, (newParams: Partial<SearchParams>) =>
     setSearchParams(Object.fromEntries(params.entries()) as SearchParams);
   };
 
-  return [searchParams, updateSearchParams];
+  return [searchParams, updateSearchParams, get, getAll];
 };
 
 export default useSearchParams;

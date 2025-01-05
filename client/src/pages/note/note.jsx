@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { axios } from "@/lib/axios";
 import NoteEditor from "@/components/note-editor";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
 import { useParams } from "react-router-dom";
 import { useUser } from "@/contexts/user-context";
+import { useNotes } from "@/hooks/use-notes";
 
 const Note = () => {
   const { user } = useUser();
   const { id } = useParams();
-  const [loading, setLoading] = useState(true);
+  const { getNote, notes, loading } = useNotes();
+
   const [note, setNote] = useState({
     id: 0,
     title: "",
@@ -17,27 +18,20 @@ const Note = () => {
     userId: user?.id ?? 0,
   });
 
-  console.log("id > ", id);
-
   useEffect(() => {
-    const fetchNote = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`/api/notes/${id}`);
-        if (response.data.note) {
-          setNote(response.data.note);
-        }
-      } catch (error) {
-        console.log(error);
-        toast.error("Failed to fetch note");
-      } finally {
-        setLoading();
-        setLoading(false);
+    const loadNote = async () => {
+      if (!Number(id)) return;
+  
+      const fetchedNote = getNote(Number(id));
+      if (fetchedNote) {
+        setNote(fetchedNote);
+      } else {
+        toast.error("Note not found");
       }
     };
 
-    fetchNote();
-  }, [id]);
+    loadNote();
+  }, [id, notes, getNote]);
 
   if (loading) return <Loader />;
 

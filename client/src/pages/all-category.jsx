@@ -72,6 +72,7 @@ export default function CategoriesPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        console.log(axios)
         const res = await axios.get("/api/categories");
         const data = res.data;
         setCategories(data.categories);
