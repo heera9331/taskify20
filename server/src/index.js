@@ -9,9 +9,9 @@ import authRouter from "./routes/auth.js";
 import uploadRouter from "./routes/upload.js";
 import { fileURLToPath } from "url";
 
-const PORT = 5000;
-
 dovenv.config();
+const PORT = process.env.PORT;
+
 
 const app = express();
 

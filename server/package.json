@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon app.js",
     "start": "node app.js",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "build": "npm install --production"
   },
   "keywords": [],
   "author": "",
