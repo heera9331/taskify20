@@ -29,10 +29,10 @@ const SignInForm = () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
-
+    // http://localhost:5000/auth/login // local
     try {
       console.log(user);
-
+      
       const response = await fetch("http://localhost:5000/auth/login", {
         method: "post",
         headers: {

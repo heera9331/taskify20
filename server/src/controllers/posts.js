@@ -8,7 +8,7 @@ export const getPosts = async (req, res) => {
     return res.json({ posts });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -30,7 +30,7 @@ export const getPost = async (req, res) => {
     return res.json({ post });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -65,7 +65,7 @@ export const updatePost = async (req, res) => {
     });
   } catch (error) {
     console.error("Post update error:", error);
-    res.status(500).json({ error: "Error while updating post" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -101,7 +101,7 @@ export const createPost = async (req, res) => {
     return res.status(201).json({ post: newPost });
   } catch (error) {
     console.error("Error creating post:", error);
-    res.status(500).json({ error: "Failed to create post." });
+    res.status(500).json({ error:error.message });
   }
 };
 
@@ -124,6 +124,6 @@ export const deletePost = async (req, res) => {
     });
   } catch (error) {
     console.error("Delete error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };

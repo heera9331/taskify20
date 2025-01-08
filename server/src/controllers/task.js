@@ -10,8 +10,7 @@ export const getTasks = async (req, res) => {
 
     return res.json({ tasks });
   } catch (error) {
-    console.error("Error fetching tasks:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -33,7 +32,6 @@ export const getTask = async (req, res) => {
 
     return res.json({ task });
   } catch (error) {
-    console.error("Error fetching task:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };

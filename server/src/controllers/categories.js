@@ -16,8 +16,7 @@ export const getCategoryById = async (req, res) => {
 
     return res.json(category);
   } catch (error) {
-    console.error("Error fetching category:", error.message);
-    return res.status(500).json({ error: "Failed to fetch category." });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -42,8 +41,7 @@ export const updateCategory = async (req, res) => {
 
     return res.json({ category: updatedCategory });
   } catch (error) {
-    console.error("Error updating category:", error.message);
-    return res.status(500).json({ error: "Internal server error." });
+    return res.status(500).json({ error: error.messageF });
   }
 };
 
@@ -66,8 +64,7 @@ export const createCategory = async (req, res) => {
 
     return res.status(201).json({ category: newCategory });
   } catch (error) {
-    console.error("Error creating category:", error.message);
-    return res.status(500).json({ error: "Failed to create category." });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -91,7 +88,7 @@ export const deleteCategory = async (req, res) => {
     return res.json({ category: deletedCategory });
   } catch (error) {
     console.error("Error deleting category:", error.message);
-    return res.status(500).json({ error: "Internal server error." });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -104,8 +101,7 @@ export const getAllCategories = async (req, res) => {
 
     return res.json({ categories });
   } catch (error) {
-    console.error("Error fetching categories:", error.message);
-    return res.status(500).json({ error: "Failed to fetch categories." });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -128,7 +124,6 @@ export const createCategoryWithParent = async (req, res) => {
 
     return res.status(201).json({ category: newCategory });
   } catch (error) {
-    console.error("Error creating category:", error.message);
-    return res.status(500).json({ error: "Failed to create category." });
+    return res.status(500).json({ error:error.message });
   }
 };

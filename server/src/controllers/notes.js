@@ -9,8 +9,7 @@ export const getNotes = async (req, res) => {
     console.log(notes);
     return res.json({ notes });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -32,8 +31,7 @@ export const getNote = async (req, res) => {
 
     return res.json({ note });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error:error.messasge});
   }
 };
 
@@ -64,7 +62,7 @@ export const updateNote = async (req, res) => {
     });
   } catch (error) {
     console.error("Update Note Error:", error);
-    res.status(500).json({ error: "Error while updating note" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -113,7 +111,6 @@ export const deleteNote = async (req, res) => {
       message: "Note deleted successfully",
     });
   } catch (error) {
-    console.error("Delete Note Error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error:error.message });
   }
 };

@@ -2,11 +2,13 @@ import { Label } from "@/components/ui/label";
 import { useState, FormEvent } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useNavigate } from "react-router-dom";
 
 import React from "react";
 import axios from "axios";
 
 const SignUpForm = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -26,13 +28,14 @@ const SignUpForm = () => {
     console.log("user > ", user);
 
     try {
-      const response = await axios.post("http://localhost:5000/auth/register", user);
+      const response = await axios.post("http://67.217.245.73/myapp/auth/register", user);
       const data = await response.data;
 
       if (data) {
         setSuccess(true);
         setError("");
         console.log("User signed up successfully:", data);
+        navigate("/auth");
       } else {
         setError(data.error || "Something went wrong.");
         setSuccess(false);
