@@ -1,13 +1,12 @@
 import express from "express";
-import prisma from "../lib/prisma.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { User } from "../models/index.js";
 
 const authRouter = express.Router();
-
 const SECRET_KEY = process.env.JWT_SECRET_KEY || "";
 
-// /auth/regiter
+// /auth/register
 authRouter.post("/register", async (req, res) => {
   try {
     const { name, email, userName, password } = req.body;
@@ -18,35 +17,34 @@ authRouter.post("/register", async (req, res) => {
         .json({ error: "userName, email and password are required" });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { username: userName },
-    });
-
-    if (user) {
-      return res.status(404).json({ error: "userName already exits" });
+    // Check if the username already exists
+    const existingUser = await User.findOne({ username: userName });
+    if (existingUser) {
+      return res.status(400).json({ error: "userName already exists" });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the user in the database
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        username: userName,
-        password: hashedPassword,
-      },
+    // Create a new user in the database
+    const newUser = new User({
+      name,
+      email,
+      username: userName,
+      password: hashedPassword,
     });
 
-    // Remove the password from the user object before sending response
-    const { password: _, ...userWithoutPassword } = newUser;
+    await newUser.save();
 
-    return res.json({
+    // Remove the password before sending the response
+    const { password: _, ...userWithoutPassword } = newUser.toObject();
+
+    return res.status(201).json({
       message: "User created successfully",
       user: userWithoutPassword,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -55,47 +53,43 @@ authRouter.post("/register", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log("JSON data > ", { username, password });
+
     if (!username || !password) {
       return res
-        .status(404)
+        .status(400)
         .json({ error: "Username and password are required" });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { username },
-    });
-
+    // Find the user by username
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({ error: "Username not found" });
     }
 
-    // Compare password with hashed password in the database
+    // Compare the password with the hashed password
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
-      return res.json({ error: "Invalid password" }, { status: 401 });
+      return res.status(401).json({ error: "Invalid password" });
     }
 
-    // Generate JWT token
+    // Generate a JWT token
     const token = jwt.sign(
-      { userId: user.id, userName: user.username },
+      { userId: user._id, userName: user.username },
       SECRET_KEY,
       { expiresIn: "1h" } // Token expires in 1 hour
     );
 
-    // Remove the password from the user object before sending response
-    const { password: _, ...userWithoutPassword } = user;
+    // Remove the password before sending the response
+    const { password: _, ...userWithoutPassword } = user.toObject();
 
-    // Return success response with token and user details
     return res.json({
       message: "Authentication successful",
       token,
       user: userWithoutPassword,
     });
   } catch (error) {
-    console.log("login error > ", error);
-    return res.status(500).json({ error: "internal server error" });
+    console.error("Login error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 

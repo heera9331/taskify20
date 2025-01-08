@@ -8,10 +8,10 @@ import Router from "./routes/index.js";
 import authRouter from "./routes/auth.js";
 import uploadRouter from "./routes/upload.js";
 import { fileURLToPath } from "url";
+import { connectToDatabase } from "./config/db.js";
 
 dovenv.config();
-const PORT = process.env.PORT;
-
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 
@@ -37,6 +37,7 @@ app.get("/", async (req, res) => {
   res.send("Welcome to the Node.js Backend!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend server is running on http://localhost:${5000}`);
+app.listen(PORT, async () => {
+  await connectToDatabase();
+  console.log(`Backend server is running on http://localhost:${PORT}`);
 });

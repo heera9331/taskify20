@@ -27,7 +27,7 @@ const TaskList = ({ tasks = [] }: { tasks: Task[] }) => {
         <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {tasks.map((task) => (
             <li
-              key={task.id}
+              key={task._id}
               className="p-4 transition-shadow bg-white rounded shadow hover:shadow-lg"
             >
               <h2 className="mb-2 text-xl font-semibold">{task.title}</h2>
@@ -44,16 +44,16 @@ const TaskList = ({ tasks = [] }: { tasks: Task[] }) => {
 
               <div className="flex items-center justify-between w-full mt-2">
                 <Link
-                  to={`/tasks/${task.id}?action=edit`}
+                  to={`/tasks/${task._id}?action=edit`}
                   className="text-sm text-blue-500 hover:underline"
                 >
                   View Details
                 </Link>
                 <Trash2
                   className="w-4 h-4 text-red-600 cursor-pointer"
-                  onClick={(e) => {
+                  onClick={(e:any) => {
                     console.log(e);
-                    handleDelete(task.id);
+                    handleDelete(task._id);
                   }}
                 />
               </div>

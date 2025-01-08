@@ -1,62 +1,75 @@
-import prisma from "../lib/prisma.js";
+import { Post } from "../models/index.js"; // Assuming you have a Post model
 import slugify from "slugify";
 
+// Get all posts
 export const getPosts = async (req, res) => {
   try {
-    const posts = await prisma.post.findMany({});
+    const posts = await Post.find({});
     return res.json({ posts });
   } catch (error) {
-    console.log(error);
-    res.json({ error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// Get a specific post by ID
 export const getPost = async (req, res) => {
   try {
     const { id } = req.params;
 
     if (!id) {
-      return res.staus(404).json({ error: "id not found" });
+      return res.status(404).json({ error: "ID not provided" });
     }
-    const posts = await prisma.post.findUnique({ where: { id: parseInt(id) } });
 
-    return res.json({ posts });
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    return res.json({ post });
   } catch (error) {
-    console.log(error);
-    res.json({ error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// Update a post
 export const updatePost = async (req, res) => {
   try {
-    const { id } = req.params; // Directly access `id` from `req.params`
+    const { id } = req.params;
 
-    if (isNaN(parseInt(id))) {
+    if (!id) {
       return res.status(404).json({ error: "Invalid post ID provided." });
     }
 
     const { title, content, category } = req.body;
 
-    const updatedpost = await prisma.post.update({
-      where: { id: parseInt(id) }, // Ensure `id` is an integer
-      data: {
+    const updatedPost = await Post.findByIdAndUpdate(
+      id,
+      {
         title,
-        content: JSON.stringify(content), // Assuming content needs to be serialized
+        content, // No need to serialize if `content` is already structured
         category,
       },
-    });
+      { new: true } // Return the updated document
+    );
 
-    if (updatedpost) {
-      return res.json({ post: updatedpost, message: "post updated" });
+    if (!updatedPost) {
+      return res.status(404).json({ error: "Post not found or not updated." });
     }
 
-    return res.status(500).json({ error: "Error while updating post" });
+    return res.json({
+      post: updatedPost,
+      message: "Post updated successfully",
+    });
   } catch (error) {
-    console.log("post update error> ", error);
-    return res.status(500).json({ error: "Error while updating post" });
+    console.error("Post update error:", error);
+    res.status(500).json({ error: "Error while updating post" });
   }
 };
 
+// Create a new post
 export const createPost = async (req, res) => {
   try {
     const {
@@ -70,47 +83,47 @@ export const createPost = async (req, res) => {
       postType,
     } = req.body;
 
-    console.log(title, content);
-
-    // Validate required fields
     if (!title || !userId) {
-      return res.status(400).json({
-        error: "Title and userId are required.",
-      });
+      return res.status(400).json({ error: "Title and userId are required." });
     }
 
-    // Create new post in the database
-    const newpost = await prisma.post.create({
-      data: {
-        title,
-        content: JSON.stringify(content), // Assuming content is structured data
-        userId: Number(userId),
-        category: category?.toString(), // Ensure it's a string if provided
-        parentId,
-        name: name ?? slugify(title, true),
-        postType,
-      },
+    const newPost = await Post.create({
+      title,
+      content, // Assuming content is structured data
+      userId,
+      category,
+      parentId,
+      name: name ?? slugify(title, { lower: true }),
+      postType,
+      isPublic: Boolean(isPublic),
     });
 
-    // Return the created post
-    res.status(201).json({ post: newpost });
+    return res.status(201).json({ post: newPost });
   } catch (error) {
     console.error("Error creating post:", error);
     res.status(500).json({ error: "Failed to create post." });
   }
 };
 
+// Delete a post
 export const deletePost = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    const deletedpost = await prisma.post.delete({
-      where: { id: Number(id) },
-    });
+    const { id } = req.params;
 
-    return res.json(deletedpost);
+    const deletedPost = await Post.findByIdAndDelete(id);
+
+    if (!deletedPost) {
+      return res
+        .status(404)
+        .json({ error: "Post not found or already deleted." });
+    }
+
+    return res.json({
+      post: deletedPost,
+      message: "Post deleted successfully",
+    });
   } catch (error) {
-    console.error("DELETE Error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Delete error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

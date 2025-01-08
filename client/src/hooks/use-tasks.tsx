@@ -2,13 +2,13 @@ import { axios } from "@/lib/axios";
 import { useState, useEffect } from "react";
 
 interface Task {
-  id: number;
+  _id: string;
   title: string;
   content: string;
   priority: number;
   status: string;
   dueDate: string;
-  userId: number;
+  userId: string;
 }
 
 export function useTasks() {
@@ -46,7 +46,7 @@ export function useTasks() {
     }
   };
 
-  const addTask = async ({ task }: { task: Omit<Task, "id"> }) => {
+  const addTask = async ({ task }: { task: Omit<Task, "_id"> }) => {
     try {
       const response = await axios.post("/api/tasks", task);
       const newTask = response.data.task;
@@ -60,13 +60,13 @@ export function useTasks() {
     }
   };
 
-  const updateTask = async (id: number, updates: Partial<Task>) => {
+  const updateTask = async (id: string, updates: Partial<Task>) => {
     try {
       const response = await axios.put(`/api/tasks/${id}`, updates);
       const updatedTask = response.data.task;
       setTasks((prev) =>
         prev.map((task) =>
-          task.id === id ? { ...task, ...updatedTask } : task
+          task._id === id ? { ...task, ...updatedTask } : task
         )
       );
       return updatedTask;
@@ -76,11 +76,11 @@ export function useTasks() {
     }
   };
 
-  const deleteTask = async (id: number) => {
+  const deleteTask = async (id: string) => {
     try {
       const response = await axios.delete(`/api/tasks/${id}`);
       const data = response.data;
-      const newTasks = tasks.filter((task) => task.id !== id);
+      const newTasks = tasks.filter((task) => task._id !== id);
       setTasks(newTasks);
       return data;
     } catch (error) {
@@ -89,7 +89,7 @@ export function useTasks() {
   };
 
   const getTask = (id: string): Task | null => {
-    return tasks.find((task) => task.id === parseInt(id, 10)) || null;
+    return tasks.find((task) => task._id === id) || null;
   };
 
   return {

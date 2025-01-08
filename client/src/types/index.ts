@@ -1,5 +1,5 @@
 export interface User {
-  id: number;
+  _id: string;
   name: string;
   email: string;
   username: string;
@@ -11,7 +11,7 @@ export interface User {
 }
 
 export interface Post {
-  id: number;
+  _id: string;
   title: string;
   name: string; // Slug
   content: string;
@@ -24,7 +24,7 @@ export interface Post {
   tags: Tag[]; // Related tags
 }
 export interface Task {
-  id: number;
+  _id: string;
   title: string;
   content: string;
   parentId?: number | null; // Nullable parent ID for hierarchical tasks
@@ -46,7 +46,7 @@ export interface Task {
 }
 
 export interface Category {
-  id: number;
+  _id: string;
   title: string;
   description: string;
   parentId?: number | null; // Nullable parent ID for hierarchical categories
@@ -57,7 +57,7 @@ export interface Category {
 }
 
 export interface Comment {
-  id: number;
+  _id: string;
   content: string;
   postId: number;
   userId: number;
@@ -71,7 +71,7 @@ export interface Comment {
 }
 
 export interface Note {
-  id: number;
+  _id: string;
   title: string;
   content: string;
   parentId?: number | null; // Nullable parent ID for hierarchical notes
@@ -90,7 +90,7 @@ export interface Note {
 }
 
 export interface Tag {
-  id: number;
+  _id: string;
   name: string; // Unique tag name
   posts: Post[]; // Related posts
   notes: Note[]; // Related notes

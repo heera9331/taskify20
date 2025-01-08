@@ -1,28 +1,39 @@
-import prisma from "../lib/prisma.js";
+import { Task } from "../models/index.js"; // Assuming you have a Task model
 
+// Get all tasks for a user
 export const getTasks = async (req, res) => {
   try {
     const { userId } = req.user;
-    const tasks = await prisma.task.findMany({ userId });
+
+    // Fetch tasks for the logged-in user
+    const tasks = await Task.find({ userId });
+
     return res.json({ tasks });
   } catch (error) {
-    console.log(error);
-    res.json({ error: "Internal server error" });
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// Get a specific task by ID
 export const getTask = async (req, res) => {
   try {
-    const id = req.params;
+    const { id } = req.params;
 
     if (!id) {
-      return res.staus(404).json({ error: "id not found" });
+      return res.status(404).json({ error: "Task ID not provided" });
     }
-    const task = await prisma.task.findUnique({ id });
+
+    // Fetch the task by ID
+    const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
 
     return res.json({ task });
   } catch (error) {
-    console.log(error);
-    res.json({ error: "Internal server error" });
+    console.error("Error fetching task:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

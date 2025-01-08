@@ -10,7 +10,7 @@ import { axios } from "@/lib/axios";
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 interface Board {
-  id: number;
+  _id: string;
   title: string;
 }
 
@@ -26,7 +26,7 @@ interface UserContextType {
 }
 
 export interface Post {
-  id: number;
+  _id: string;
   title: string;
   name: string; // Slug
   content: string;
@@ -37,7 +37,7 @@ export interface Post {
 }
 
 export interface User {
-  id: number;
+  _id: string;
   name: string;
   email: string;
   username: string;

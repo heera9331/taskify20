@@ -12,13 +12,13 @@ const SignInForm = () => {
     username: "admin",
     password: "admin",
   });
-  
+
   const navigate = useNavigate();
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
@@ -33,7 +33,7 @@ const SignInForm = () => {
     try {
       console.log(user);
 
-      const response = await fetch("http://67.217.245.73/myapp/auth/login", {
+      const response = await fetch("http://localhost:5000/auth/login", {
         method: "post",
         headers: {
           "content-type": "application/json",
@@ -45,13 +45,16 @@ const SignInForm = () => {
       });
 
       console.log(response);
-      const data = await response.json();
-      console.log(data);
-      
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("token", JSON.stringify(data.token));
-      
-      navigate("/home");
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", JSON.stringify(data.token));
+        navigate("/home");
+      } else {
+        const err = await response.json();
+        alert(err.error)
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -59,9 +62,9 @@ const SignInForm = () => {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     localStorage.clear();
-  }, [])
+  }, []);
 
   return (
     <form

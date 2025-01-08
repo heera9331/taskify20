@@ -35,7 +35,7 @@ const EDITOR_HOLDER_ID = "editorjs-container";
 
 interface NoteProps {
   initialNote: {
-    id: number;
+    _id: number;
     title: string;
     content: string;
     userId: number;
@@ -43,6 +43,7 @@ interface NoteProps {
 }
 
 const NoteEditor = ({ initialNote }: NoteProps) => {
+  console.log(initialNote);
   const { id } = useParams();
   console.log(id);
   const editorInstance = useRef<EditorJS | null>(null);
@@ -122,7 +123,7 @@ const NoteEditor = ({ initialNote }: NoteProps) => {
       const payload = {
         title: note.title,
         content: content,
-        userId: user?.id ?? 0,
+        userId: user?._id ?? 0,
         category,
       };
 

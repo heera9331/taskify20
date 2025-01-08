@@ -12,17 +12,15 @@ const Note = () => {
   const { getNote, notes, loading } = useNotes();
 
   const [note, setNote] = useState({
-    id: 0,
+    _id: 0,
     title: "",
     content: "",
-    userId: user?.id ?? 0,
+    userId: user?._id ?? 0,
   });
 
   useEffect(() => {
     const loadNote = async () => {
-      if (!Number(id)) return;
-  
-      const fetchedNote = getNote(Number(id));
+      const fetchedNote = getNote(id);
       if (fetchedNote) {
         setNote(fetchedNote);
       } else {
@@ -40,7 +38,7 @@ const Note = () => {
       <div className="min-h-screen">
         <NoteEditor
           initialNote={{
-            id: note.id,
+            _id: note._id,
             title: note.title,
             content: note.content,
             userId: note.userId,

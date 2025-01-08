@@ -31,8 +31,8 @@ export function useNotes() {
     }
   };
 
-  const getNote = (id: number) => {
-    return notes.find((note) => note.id === id) || null;
+  const getNote = (id: string) => {
+    return notes.find((note) => note._id === id) || null;
   };
 
   const updateNote = (newNote: Note) => {

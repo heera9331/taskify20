@@ -16,3 +16,5 @@
 - make sure we are on correct path or directory
 - without typescript shadcn is not work
 - 
+
+https://chatgpt.com/c/677c9044-7990-8009-88dd-3acd5517f73b

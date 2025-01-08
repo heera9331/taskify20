@@ -61,11 +61,11 @@ const Notes = () => {
           {!loading &&
             notes.map((note) => (
               <div
-                key={note.id}
+                key={note._id}
                 className="flex flex-col w-full gap-4 p-4 transition-shadow bg-white rounded shadow hover:shadow-lg"
               >
                 {/* Note Title */}
-                <Link to={`/notes/${note.id}?action=edit`}>
+                <Link to={`/notes/${note._id}?action=edit`}>
                   <h2>{note.title}</h2>
                 </Link>
 
@@ -82,14 +82,14 @@ const Notes = () => {
                 {/* Actions */}
                 <div className="flex items-center justify-between">
                   <Link
-                    to={`/notes/${note.id}?action=view`}
+                    to={`/notes/${note._id}?action=view`}
                     className="text-sm text-blue-500 hover:underline"
                   >
                     read more
                   </Link>
                   <Trash2
                     className="w-4 h-4 text-red-600 cursor-pointer"
-                    onClick={() => handleDelete(note.id)}
+                    onClick={() => handleDelete(note._id)}
                   />
                 </div>
               </div>

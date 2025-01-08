@@ -1,111 +1,119 @@
-import prisma from "../lib/prisma.js";
+import { Note } from "../models/index.js"; // Assuming you have a Note model
 
+// Get all notes for a user
 export const getNotes = async (req, res) => {
   try {
     const { userId } = req.user;
-    const notes = await prisma.note.findMany({ where: { userId } });
+
+    const notes = await Note.find({ userId });
+    console.log(notes);
     return res.json({ notes });
   } catch (error) {
-    console.log(error);
-    res.json({ error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// Get a specific note by ID
 export const getNote = async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req.user;
 
     if (!id) {
-      return res.staus(404).json({ error: "id not found" });
+      return res.status(404).json({ error: "Note ID is required" });
     }
-    const note = await prisma.note.findUnique({
-      where: { id: parseInt(id), userId },
-    });
+
+    const note = await Note.findOne({ _id: id, userId });
+
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
 
     return res.json({ note });
   } catch (error) {
-    console.log(error);
-    res.json({ error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// Update a note
 export const updateNote = async (req, res) => {
   try {
-    const { id } = req.params; // Directly access `id` from `req.params`
+    const { id } = req.params;
     const { userId } = req.user;
-
-    if (isNaN(parseInt(id))) {
-      return res.status(404).json({ error: "Invalid note ID provided." });
-    }
-
     const { title, content, category } = req.body;
 
-    const updatedNote = await prisma.note.update({
-      where: { id: parseInt(id), userId }, // Ensure `id` is an integer
-      data: {
-        title,
-        content: JSON.stringify(content), // Assuming content needs to be serialized
-        category,
-      },
-    });
-
-    if (updatedNote) {
-      return res.json({ note: updatedNote, message: "Note updated" });
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({ error: "Invalid note ID provided." });
     }
 
-    return res.status(500).json({ error: "Error while updating note" });
+    const updatedNote = await Note.findOneAndUpdate(
+      { _id: id, userId },
+      { title, content: JSON.stringify(content), category },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedNote) {
+      return res.status(404).json({ error: "Note not found or not updated." });
+    }
+
+    return res.json({
+      note: updatedNote,
+      message: "Note updated successfully",
+    });
   } catch (error) {
-    console.log("Note update error> ", error);
-    return res.status(500).json({ error: "Error while updating note" });
+    console.error("Update Note Error:", error);
+    res.status(500).json({ error: "Error while updating note" });
   }
 };
 
+// Create a new note
 export const createNote = async (req, res) => {
   try {
     const { title, content, parentId, isPublic, category } = req.body;
     const { userId } = req.user;
 
-    console.log(title, content);
-
-    // Validate required fields
     if (!title || !userId) {
-      return res.status(400).json({
-        error: "Title and userId are required.",
-      });
+      return res.status(400).json({ error: "Title and userId are required." });
     }
 
-    // Create new note in the database
-    const newNote = await prisma.note.create({
-      data: {
-        title,
-        content: JSON.stringify(content), // Assuming content is structured data
-        userId,
-        isPublic: Boolean(isPublic),
-        category: category?.toString(), // Ensure it's a string if provided
-        parentId,
-      },
+    const newNote = await Note.create({
+      title,
+      content: JSON.stringify(content),
+      userId,
+      parentId,
+      isPublic: Boolean(isPublic),
+      category,
     });
 
-    // Return the created note
-    res.status(201).json({ note: newNote });
+    return res.status(201).json({ note: newNote });
   } catch (error) {
+    console.error("Create Note Error:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
+// Delete a note
 export const deleteNote = async (req, res) => {
-  const { id } = req.params;
-  const { userId } = req.user;
-
   try {
-    const deletedNote = await prisma.note.delete({
-      where: { id: Number(id), userId },
-    });
+    const { id } = req.params;
+    const { userId } = req.user;
 
-    return res.json(deletedNote);
+    const deletedNote = await Note.findOneAndDelete({ _id: id, userId });
+
+    if (!deletedNote) {
+      return res
+        .status(404)
+        .json({ error: "Note not found or already deleted." });
+    }
+
+    return res.json({
+      note: deletedNote,
+      message: "Note deleted successfully",
+    });
   } catch (error) {
-    console.error("DELETE Error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Delete Note Error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

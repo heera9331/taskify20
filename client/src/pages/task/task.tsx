@@ -7,13 +7,13 @@ import useSearchParams from "@/hooks/use-query-params";
 import { useParams } from "react-router-dom";
 
 interface Task {
-  id: number;
+  _id: string;
   title: string;
   content: string;
   priority: number;
   status: string;
   dueDate: string;
-  userId: number;
+  userId: string;
 }
 
 const TaskPage: React.FC = () => {
@@ -24,15 +24,14 @@ const TaskPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const [task, setTask] = useState<Task>({
-    id: 0,
+    _id: "",
     title: "",
     content: "",
     priority: 1,
     dueDate: new Date().toISOString(),
     status: "TODO",
-    userId: user?.id ?? 0,
+    userId: user?._id ?? "",
   });
-
   const isEditing = query["action"] === "edit";
 
   // Track if initial task has been loaded
@@ -69,8 +68,8 @@ const TaskPage: React.FC = () => {
     }
 
     try {
-      if (isEditing && task.id) {
-        await updateTask(task.id, task);
+      if (isEditing && task._id) {
+        await updateTask(task._id, task);
         toast.success("Task updated successfully");
       } else {
         await addTask(task);

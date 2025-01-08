@@ -1,33 +1,41 @@
-import prisma from "../lib/prisma.js";
+import { Task } from "../models/index.js";
 
+// Get all tasks for a user
 export const getTasks = async (req, res) => {
   try {
     const { userId } = req.user;
-    const tasks = await prisma.task.findMany({ where: { userId } });
+
+    // Fetch tasks for the logged-in user
+    const tasks = await Task.find({ userId });
+
     return res.json({ tasks });
   } catch (error) {
-    console.log(error);
-    res.json({ error: "Internal server error" });
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// Get a specific task by ID
 export const getTask = async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req.user;
 
     if (!id) {
-      return res.staus(404).json({ error: "id not found" });
+      return res.status(404).json({ error: "Task ID not provided" });
     }
 
-    const task = await prisma.task.findUnique({
-      where: { id: Number(id), userId },
-    });
+    // Fetch the task by ID and userId
+    const task = await Task.findOne({ _id: id, userId });
+
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
 
     return res.json(task);
   } catch (error) {
-    console.log(error);
-    res.json({ error: "Internal server error" });
+    console.error("Error fetching task:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -38,19 +46,21 @@ export const updateTask = async (req, res) => {
   const { title, content, postType } = req.body;
 
   try {
-    const updatedTask = await prisma.task.update({
-      where: { id: Number(id), userId },
-      data: {
-        title,
-        content,
-        postType,
-      },
-    });
+    // Update the task with matching ID and userId
+    const updatedTask = await Task.findOneAndUpdate(
+      { _id: id, userId },
+      { title, content, postType },
+      { new: true } // Return the updated task
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({ error: "Task not found or not updated" });
+    }
 
     return res.json(updatedTask);
   } catch (error) {
     console.error("PATCH Error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -59,23 +69,21 @@ export const createTask = async (req, res) => {
   const { title, content, category, status, dueDate, userId } = req.body;
 
   try {
-    const newTask = await prisma.task.create({
-      data: {
-        title,
-        content,
-        category,
-        status,
-        dueDate,
-        userId,
-      },
+    const newTask = await Task.create({
+      title,
+      content,
+      category,
+      status,
+      dueDate,
+      userId,
     });
 
     return res
       .status(201)
-      .json({ task: newTask, message: "task created successfully" });
+      .json({ task: newTask, message: "Task created successfully" });
   } catch (error) {
     console.error("CREATE Error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -85,13 +93,20 @@ export const deleteTask = async (req, res) => {
   const { userId } = req.user;
 
   try {
-    const deletedTask = await prisma.task.delete({
-      where: { id: Number(id), userId },
-    });
+    const deletedTask = await Task.findOneAndDelete({ _id: id, userId });
 
-    return res.json(deletedTask);
+    if (!deletedTask) {
+      return res
+        .status(404)
+        .json({ error: "Task not found or already deleted" });
+    }
+
+    return res.json({
+      task: deletedTask,
+      message: "Task deleted successfully",
+    });
   } catch (error) {
     console.error("DELETE Error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 };

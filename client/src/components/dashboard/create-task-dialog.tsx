@@ -46,7 +46,7 @@ interface Task {
   priority: number;
   dueDate: string; // ISO string format
   status: "TODO" | "IN_PROGRESS" | "DONE";
-  userId: number;
+  userId: string;
 }
 
 export function CreateTaskDialog() {
@@ -63,11 +63,11 @@ export function CreateTaskDialog() {
     priority: 0,
     dueDate: new Date().toISOString(),
     status: "TODO",
-    userId: 0,
+    userId: "",
   });
 
   useEffect(() => {
-    setTask({ ...task, userId: user?.id ?? 0 });
+    setTask({ ...task, userId: user?._id ?? "" });
   }, [user]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -75,7 +75,7 @@ export function CreateTaskDialog() {
     setLoading(true);
 
     try {
-      setTask({ ...task, userId: user?.id ?? 0 });
+      setTask({ ...task, userId: user?._id ?? "" });
       const response = await addTask({ task }); // Assuming `addTask` accepts a Task object directly
       toast.success("Task created successfully");
       setOpen(false);

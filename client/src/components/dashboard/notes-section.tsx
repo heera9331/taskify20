@@ -61,10 +61,10 @@ export function NotesSection() {
             notes.length &&
             notes.map((note) => (
               <button
-                key={note.id}
+                key={note._id}
                 className="w-full text-left"
                 onClick={() => {
-                  router(`/notes/${note.id}?action=view`);
+                  router(`/notes/${note._id}?action=view`);
                 }}
               >
                 <div className="p-4 transition-colors rounded-lg bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
