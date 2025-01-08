@@ -2,8 +2,7 @@ import dovenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import path from "path";
-
-import prisma from "./lib/prisma.js";
+ 
 import Router from "./routes/index.js";
 import authRouter from "./routes/auth.js";
 import uploadRouter from "./routes/upload.js";
@@ -32,8 +31,6 @@ app.use("/auth", authRouter);
 app.use("/uploads", uploadRouter);
 
 app.get("/", async (req, res) => {
-  const notes = await prisma.note.findMany();
-  console.log("notes", notes);
   res.send("Welcome to the Node.js Backend!");
 });
 

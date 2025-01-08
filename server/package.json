@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -9,11 +9,10 @@
     "build": "npm install --production"
   },
   "keywords": [],
-  "author": "",
+  "author": "Heera Singh",
   "license": "ISC",
   "description": "",
-  "dependencies": {
-    "@prisma/client": "^6.1.0",
+  "dependencies": { 
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",

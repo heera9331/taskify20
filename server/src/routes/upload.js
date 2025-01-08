@@ -1,7 +1,7 @@
 import express from "express";
-import prisma from "../lib/prisma.js";
 import { upload } from "../lib/multer.js";
 import slugify from "slugify";
+import { Post } from "../models/index.js";
 
 const uploadRouter = express.Router();
 
@@ -42,10 +42,7 @@ uploadRouter.post("/", upload.single("file"), async (req, res) => {
       userId: parseInt(userId, 10), // Ensure userId is a number
     };
 
-    // Save to the database
-    const createdPost = await prisma.post.create({
-      data: newPost,
-    });
+    const createdPost = await Post.insertMany([newPost]);
 
     // Response
     res.status(200).json({
@@ -55,19 +52,18 @@ uploadRouter.post("/", upload.single("file"), async (req, res) => {
     });
   } catch (error) {
     console.error("Upload error > ", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: error.message });
   }
 });
 
 uploadRouter.get("/", async (req, res) => {
   try {
-    const posts = await prisma.post.findMany({
-      where: { postType: "ATTACHMENT" },
-    });
+    const posts = await Post.findMany({ postType: "ATTACHMENT" });
+
     return res.json({ posts });
   } catch (error) {
     console.log("upload error > ", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -75,12 +71,12 @@ uploadRouter.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedPost = await prisma.post.delete({ where: { id: Number(id) } });
+    const deletedPost = await Post.deleteOne({ _id: id });
 
     return res.json({ post: deletedPost });
   } catch (error) {
     console.log("upload error > ", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: error.message });
   }
 });
 
