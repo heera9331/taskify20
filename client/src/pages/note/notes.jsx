@@ -82,7 +82,7 @@ const Notes = () => {
                 {/* Actions */}
                 <div className="flex items-center justify-between">
                   <Link
-                    to={`/notes/${note._id}?action=view`}
+                    to={`/notes/${note._id}?action=edit`}
                     className="text-sm text-blue-500 hover:underline"
                   >
                     read more

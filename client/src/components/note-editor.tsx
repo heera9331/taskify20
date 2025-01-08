@@ -19,6 +19,8 @@ import { Loader2, Save } from "lucide-react";
 import { axios } from "@/lib/axios";
 import { useUser } from "@/contexts/user-context";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
+import useSearchParams from "@/hooks/use-query-params";
 
 import { Label } from "./ui/label";
 import {
@@ -35,17 +37,16 @@ const EDITOR_HOLDER_ID = "editorjs-container";
 
 interface NoteProps {
   initialNote: {
-    _id: number;
+    _id: string;
     title: string;
     content: string;
-    userId: number;
+    userId: string;
   };
 }
 
 const NoteEditor = ({ initialNote }: NoteProps) => {
-  console.log(initialNote);
+  const [searchParams] = useSearchParams();
   const { id } = useParams();
-  console.log(id);
   const editorInstance = useRef<EditorJS | null>(null);
   const { user, categories } = useUser();
   const [category, setCategory] = useState<number | null>(null);
@@ -123,22 +124,21 @@ const NoteEditor = ({ initialNote }: NoteProps) => {
       const payload = {
         title: note.title,
         content: content,
-        userId: user?._id ?? 0,
+        userId: user?._id ?? "",
         category,
       };
 
       console.log("Saving Payload:", payload);
       let response = null;
-      if (Number(id)) {
+      if (searchParams.action !== "new") {
         response = await axios.put(`/api/notes/${id}`, payload);
       } else {
         response = await axios.post("/api/notes", payload);
       }
       console.log("Save Response:", response);
       toast.success("Note saved");
-    } catch (err) {
-      console.error("Error saving note:", err);
-      toast.error("Failed to save note");
+    } catch (err: AxiosError) {
+      toast.error(err.response?.data.error);
     } finally {
       setLoading(false);
       // Removed the erroneous toast.error call here

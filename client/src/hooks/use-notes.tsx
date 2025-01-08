@@ -24,8 +24,9 @@ export function useNotes() {
       const notes = response.data.notes;
       setNotes(notes);
       localStorage.setItem("notes", JSON.stringify(notes));
-    } catch (error) {
-      setError("error while fetching notes");
+    } catch (err) {
+      setError("Error while fetching notes");
+      console.error("Error fetching notes:", err);
     } finally {
       setLoading(false);
     }
@@ -36,19 +37,22 @@ export function useNotes() {
   };
 
   const updateNote = (newNote: Note) => {
-    console.log("put api request");
-    setNotes([...notes, newNote]);
-    console.log(newNote);
+    setNotes((prevNotes) =>
+      prevNotes.map((note) =>
+        note._id === newNote._id ? { ...note, ...newNote } : note
+      )
+    );
   };
 
-  const deleteNote = async (id: number) => {
-    const response = await axios.delete(`/api/notes/${id}`);
-    const tmp = notes.filter((note) => note.id !== id);
-    setNotes(tmp);
-    return response;
+  const deleteNote = async (id: string) => {
+    try {
+      const response = await axios.delete(`/api/notes/${id}`);
+      setNotes((prevNotes) => prevNotes.filter((note) => note._id !== id));
+      return response;
+    } catch (err) {
+      console.error("Error deleting note:", err);
+    }
   };
 
-  
-
-  return { notes, setNotes, getNote, updateNote, deleteNote, loading };
+  return { notes, setNotes, getNote, updateNote, deleteNote, loading, error };
 }

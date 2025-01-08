@@ -1,62 +1,55 @@
-import { axios } from "@/lib/axios";
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useNavigate } from "react-router-dom";
-import React from "react";
 
 const SignInForm = () => {
   const [user, setUser] = useState({
-    username: "admin",
-    password: "admin",
+    username: "",
+    password: "",
   });
-
-  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
   const handleFormSubmit = async (e: FormEvent) => {
-    console.log("sumiting");
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(null);
-    // http://localhost:5000/auth/login // local
+
+    if (!user.username || !user.password) {
+      setLoading(false);
+      setError("Username and Password are required.");
+      return;
+    }
+
     try {
-      console.log(user);
-      
       const response = await fetch("http://localhost:5000/auth/login", {
-        method: "post",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          username: user.username,
-          password: user.password,
-        }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user),
       });
 
-      console.log(response);
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", JSON.stringify(data.token));
+        toast({ title: "Login successful!", type: "success" });
         navigate("/home");
       } else {
-        const err = await response.json();
-        alert(err.error)
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to log in. Please try again.");
       }
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -67,11 +60,7 @@ const SignInForm = () => {
   }, []);
 
   return (
-    <form
-      onSubmit={handleFormSubmit}
-      method="post"
-      className="flex flex-col gap-4"
-    >
+    <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
       <div>
         <Label htmlFor="username" className="block mb-1">
           Username
@@ -80,10 +69,10 @@ const SignInForm = () => {
           id="username"
           type="text"
           placeholder="Enter username"
-          className="w-full"
+          name="username"
           value={user.username}
           onChange={handleInputChange}
-          name="username"
+          className="w-full"
         />
       </div>
 
@@ -92,18 +81,17 @@ const SignInForm = () => {
           Password
         </Label>
         <Input
-          name="password"
-          value={user.password}
           id="password"
           type="password"
           placeholder="Enter your password"
-          className="w-full"
+          name="password"
+          value={user.password}
           onChange={handleInputChange}
+          className="w-full"
         />
       </div>
 
       {error && <p className="text-red-500">{error}</p>}
-      {success && <p className="text-green-500">{success}</p>}
 
       <Button type="submit" disabled={loading} className="w-full mt-4">
         {loading ? "Signing In..." : "Sign In"}
