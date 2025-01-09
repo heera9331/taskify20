@@ -1,4 +1,3 @@
-import dovenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -8,8 +7,9 @@ import authRouter from "./routes/auth.js";
 import uploadRouter from "./routes/upload.js";
 import { fileURLToPath } from "url";
 import { connectToDatabase } from "./config/db.js";
+import dotenv from "dotenv";
 
-dovenv.config();
+dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 const app = express();
