@@ -31,8 +31,8 @@ const SignInForm = () => {
       return;
     }
 
-    try {
-      const response = await fetch("http://localhost:5000/auth/login", {
+    try {// http://67.217.245.73/myapp/auth/register
+      const response = await fetch("http://67.217.245.73/myapp/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
