@@ -34,7 +34,7 @@ app.get("/", async (req, res) => {
   res.send("Welcome to the Node.js Backend!");
 });
 
-app.listen(PORT, async () => {
+app.listen(PORT, "0.0.0.0", async () => {
   await connectToDatabase();
   console.log(`Backend server is running on http://localhost:${PORT}`);
 });
