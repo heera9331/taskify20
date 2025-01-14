@@ -28,7 +28,7 @@ const SignUpForm = () => {
     console.log("user > ", user);
 
     try {
-      const response = await axios.post("http://67.217.245.73/myapp/auth/register", user);
+      const response = await axios.post("https://taskify20.onrender.com/auth/register", user);
       const data = await response.data;
 
       if (data) {

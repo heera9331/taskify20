@@ -36,7 +36,7 @@ export function useTasks() {
       setLoading(true);
       const response = await axios.get("/api/tasks");
       const data = response.data.tasks;
-      localStorage.setItem("tasks", JSON.stringify(data.tasks));
+      localStorage.setItem("tasks", JSON.stringify(data));
       setTasks(data);
     } catch (error) {
       console.error("Failed to fetch tasks:", error);

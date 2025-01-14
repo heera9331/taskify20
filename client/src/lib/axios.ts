@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create an Axios instance
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/",
+  baseURL: "https://taskify20.onrender.com",
   // baseURL: "http://67.217.245.73/myapp/",
   headers: {
     "Content-Type": "application/json",

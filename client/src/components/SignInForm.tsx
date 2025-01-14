@@ -32,7 +32,7 @@ const SignInForm = () => {
     }
 
     try {// http://67.217.245.73/myapp/auth/register
-      const response = await fetch("http://67.217.245.73/myapp/auth/login", {
+      const response = await fetch("https://taskify20.onrender.com/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),

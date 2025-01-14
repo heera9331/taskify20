@@ -9,7 +9,9 @@ import Loader from "@/components/loader";
 const Tasks = () => {
   const [taskView, setTaskView] = useState("list");
   const { tasks = [], loading } = useTasks();
-  
+
+  useEffect(() => {}, [tasks]);
+
   if (loading) {
     return <Loader />;
   }
